@@ -6,5 +6,5 @@ class User(AbstractUser):
     pass
 
 
-class AuctionListings(models.Model):
-    
+# class AuctionListings(models.Model):
+#     ...
