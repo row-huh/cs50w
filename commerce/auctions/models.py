@@ -15,13 +15,12 @@ class AuctionListings(models.Model):
 
     
 class Bids(models.Model):
-    user_id = models.ForeignKey(User)
-    listing_id = models.ForeignKey(AuctionListings)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    listing_id = models.ForeignKey(AuctionListings, on_delete=models.CASCADE)
     bid = models.FloatField(default=0)
     
     
 class Comments(models.Model):
-    listing_id = models.ForeignKey(AuctionListings)
-    user_id = models.ForeignKey(User)
+    listing_id = models.ForeignKey(AuctionListings, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.CharField(max_length=64)
-

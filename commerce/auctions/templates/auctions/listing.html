@@ -5,9 +5,12 @@
     <p>{{ listing.description }}</p>
     <p>{{ listing.bid }}</p>
 
+    <form action="{% url 'listing-page' listing.id %}" method="POST">
+        {% csrf_token %}
 
-
-    <label>Place new bid: </label>
-    <input type="number" placeholder={{ listing.bid }}></input>
-    <input type="submit"></input>
+        <label>Place new bid:</label>
+        <input name="new_bid" type="number" placeholder="{{ listing.bid }}">
+        <input name="listing_id" type="number" hidden value={{ listing.id }}>
+        <input type="submit" value="Submit">
+    </form>
 {% endblock body %}

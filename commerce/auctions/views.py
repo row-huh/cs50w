@@ -3,8 +3,8 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-
-from .models import User, AuctionListings
+from django.db.models import Max
+from .models import User, AuctionListings, Bids
 
 
 def index(request):
@@ -12,7 +12,6 @@ def index(request):
         data = AuctionListings.objects.all()
         print(type(data))
         return render(request, "auctions/index.html", { "data" : data })
-
 
 
 
@@ -30,15 +29,29 @@ def create_listing(request):
         else:
             image_url = None
         
-        new_listing = AuctionListings.objects.create(title='hi', description='description', starting_bid=10, url=image_url)
+        new_listing = AuctionListings.objects.create(title=title, description=description, starting_bid=starting_bid, url=image_url)
         new_listing.save()
         
         return HttpResponse((title, description, starting_bid, image_url, new_listing))
-    
+
 
 def listing_page(request, listing_id):
-    listing = AuctionListings.objects.get(id=listing_id)
-    return render(request, "auctions/listing.html", { 'listing': listing})
+    if request.method == "GET":
+        listing = AuctionListings.objects.get(id=listing_id)
+        return render(request, "auctions/listing.html", { 'listing': listing})
+    elif request.method == "POST":
+        listing_id = request.POST.get('listing_id')
+        listing_object = AuctionListings.objects.get(id=listing_id)
+        max_bid = float(Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max'])
+
+        new_bid = float(request.POST.get('new_bid'))
+        user = request.user
+        if new_bid > max_bid:
+            return HttpResponse("New bid is set")
+        else: 
+            return HttpResponse("Bid must be higher than" + str(max_bid))
+
+
 
 
 
