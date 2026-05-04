@@ -8,14 +8,14 @@ from .models import User, AuctionListings
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    if request.method == 'GET':
+        data = AuctionListings.objects.all()
+        print(type(data))
+        return render(request, "auctions/index.html", { "data" : data })
 
 
 
-# Users should be able to visit a page to create a new listing.
-# They should be able to specify a title for the listing, 
-# a text-based description, 
-# and what the starting bid should be. 
+
 # Users should also optionally be able to provide a URL for an image for the listing and/or a category (e.g. Fashion, Toys, Electronics, Home, etc.).
 def create_listing(request):
     if request.method == "GET":
@@ -30,11 +30,17 @@ def create_listing(request):
         else:
             image_url = None
         
-        new_listing = AuctionListings.objects.create(title='hi', description='description', bid=10, url=None)
+        new_listing = AuctionListings.objects.create(title='hi', description='description', starting_bid=10, url=image_url)
         new_listing.save()
         
         return HttpResponse((title, description, starting_bid, image_url, new_listing))
     
+
+def listing_page(request, listing_id):
+    listing = AuctionListings.objects.get(id=listing_id)
+    return render(request, "auctions/listing.html", { 'listing': listing})
+
+
 
 def login_view(request):
     if request.method == "POST":

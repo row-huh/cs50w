@@ -2,5 +2,9 @@
 
 {% block body %}
     <h2>Active Listings</h2>
-
+    {% for object in data %}
+        <a href="{% url 'listing-page' %}/q={{ object.id }}"> 
+        <p>{{ object.id }}<p>
+        </a>
+    {% endfor %}
 {% endblock %}
