@@ -24,3 +24,7 @@ class Comments(models.Model):
     listing_id = models.ForeignKey(AuctionListings, on_delete=models.CASCADE)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.CharField(max_length=64)
+    
+class WatchList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    listing = models.ForeignKey(AuctionListings, on_delete=models.CASCADE)

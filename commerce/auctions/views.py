@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.db.models import Max
-from .models import User, AuctionListings, Bids
+from .models import User, AuctionListings, Bids, WatchList
 
 
 def index(request):
@@ -38,20 +38,32 @@ def create_listing(request):
 def listing_page(request, listing_id):
     if request.method == "GET":
         listing = AuctionListings.objects.get(id=listing_id)
-        return render(request, "auctions/listing.html", { 'listing': listing})
+        total_bids = len(Bids.objects.filter(listing_id=listing.id))
+        max_bid = float(Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max'])
+        return render(request, "auctions/listing.html", { 'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid})
+    
     elif request.method == "POST":
         listing_id = request.POST.get('listing_id')
         listing_object = AuctionListings.objects.get(id=listing_id)
         max_bid = float(Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max'])
 
-        new_bid = float(request.POST.get('new_bid'))
+        bid_price = float(request.POST.get('new_bid'))
         user = request.user
-        if new_bid > max_bid:
-            return HttpResponse("New bid is set")
+        if bid_price > max_bid:
+            new_bid = Bids.objects.create(user_id=user, listing_id=listing_object, bid=bid_price)
+            new_bid.save()
+            return HttpResponseRedirect((listing_id))
+
         else: 
             return HttpResponse("Bid must be higher than" + str(max_bid))
 
 
+def add_to_watchlist(request, listing_id):
+    listing_object = AuctionListings.objects.get(id=listing_id)
+    watchlist = WatchList.objects.create(user=request.user, listing=listing_object)
+    watchlist.save()
+    
+    return HttpResponseRedirect('listing-page/'+listing_id)
 
 
 

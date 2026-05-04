@@ -3,7 +3,8 @@
 {% block body %}
     <p>{{ listing.title }}</p>
     <p>{{ listing.description }}</p>
-    <p>{{ listing.bid }}</p>
+    <p>{{ total_bids }} Bid (s) so far</p>
+    <p>Highest Bid: {{ max_bid }}</p>
 
     <form action="{% url 'listing-page' listing.id %}" method="POST">
         {% csrf_token %}
@@ -13,4 +14,10 @@
         <input name="listing_id" type="number" hidden value={{ listing.id }}>
         <input type="submit" value="Submit">
     </form>
+
+    <form method="POST" action="{% url 'add-to-watchlist' listing.id %}">
+        {% csrf_token %}
+        <button type="submit">Add to Watchlist</button>
+    </form>
+
 {% endblock body %}
