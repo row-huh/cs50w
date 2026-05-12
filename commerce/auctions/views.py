@@ -40,7 +40,8 @@ def listing_page(request, listing_id):
         listing = AuctionListings.objects.get(id=listing_id)
         total_bids = len(Bids.objects.filter(listing_id=listing.id))
         max_bid = float(Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max'])
-        return render(request, "auctions/listing.html", { 'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid})
+        in_watchlist = WatchList.objects.filter(user=request.user, listing=listing_id).exists()
+        return render(request, "auctions/listing.html", { 'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist})
     
     elif request.method == "POST":
         listing_id = request.POST.get('listing_id')
@@ -59,12 +60,23 @@ def listing_page(request, listing_id):
 
 
 def add_to_watchlist(request, listing_id):
-    listing_object = AuctionListings.objects.get(id=listing_id)
-    watchlist = WatchList.objects.create(user=request.user, listing=listing_object)
-    watchlist.save()
-    
-    return HttpResponseRedirect('listing-page/'+listing_id)
-
+    if request.method=="POST":
+        print("in add to watchlist function")
+        # if watchlist contains a row with the current user id ad the current listing id then 
+        existing = WatchList.objects.filter(user=request.user, listing=listing_id)
+        if existing:
+            # delete that
+            print('inside if')
+            existing.delete()
+            print("Row deleted!")
+        else:
+            print('inside else')
+            listing_object = AuctionListings.objects.get(id=listing_id)
+            watchlist = WatchList.objects.create(user=request.user, listing=listing_object)
+            watchlist.save()
+            print("row added ")
+            
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
 
 
 def login_view(request):

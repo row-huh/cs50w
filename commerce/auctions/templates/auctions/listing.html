@@ -15,9 +15,17 @@
         <input type="submit" value="Submit">
     </form>
 
-    <form method="POST" action="{% url 'add-to-watchlist' listing.id %}">
+
+
+    <form action="{% url 'add-to-watchlist' listing.id %}" method="POST">
         {% csrf_token %}
-        <button type="submit">Add to Watchlist</button>
+        <button type="submit">
+            {% if in_watchlist %}
+                Remove From Watchlist
+            {% else %}
+                Add to Watchlist
+            {% endif %}
+        </button>
     </form>
 
 {% endblock body %}
