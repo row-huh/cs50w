@@ -8,7 +8,7 @@ class User(AbstractUser):
 
 # one for auction listings, one for bids, and one for comments made on auction listings.
 class AuctionListings(models.Model):
-    # user id??
+    publisher_id = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=64, default='')
     description = models.TextField(default='')
     starting_bid = models.FloatField(default=0)

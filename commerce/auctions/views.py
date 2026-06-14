@@ -38,10 +38,17 @@ def create_listing(request):
 def listing_page(request, listing_id):
     if request.method == "GET":
         listing = AuctionListings.objects.get(id=listing_id)
+        print("Fetched Listing: ", listing)
         total_bids = len(Bids.objects.filter(listing_id=listing.id))
-        max_bid = float(Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max'])
+        print("Fetched total_bids: ", total_bids)
+        max_bid = Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max']
+        if (not max_bid):
+            max_bid = AuctionListings.objects.get(id=listing.id).starting_bid
+            print(max_bid)
         in_watchlist = WatchList.objects.filter(user=request.user, listing=listing_id).exists()
-        return render(request, "auctions/listing.html", { 'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist})
+        return render(request, "auctions/listing.html", 
+                      {'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist})
+    
     
     elif request.method == "POST":
         listing_id = request.POST.get('listing_id')

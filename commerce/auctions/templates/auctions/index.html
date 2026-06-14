@@ -1,10 +1,12 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-    {% for object in data %}
-        <a href="{% url 'listing-page' %}/{{ object.id }}"> 
-        <p>{{ object.id }}<p>
-        </a>
-    {% endfor %}
+    {% if user.is_authenticated %}
+        <h2>Active Listings</h2>
+        {% for object in data %}
+            <a href="{% url 'listing-page' %}/{{ object.id }}"> 
+            <p>{{ object.id }}<p>
+            </a>
+        {% endfor %}
+    {% endif %}
 {% endblock %}
