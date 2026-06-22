@@ -4,7 +4,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.db.models import Max
-from .models import User, AuctionListings, Bids, WatchList
+from .models import User, AuctionListings, Bids, WatchList, Comments
 
 
 def index(request):
@@ -46,6 +46,8 @@ def listing_page(request, listing_id):
             max_bid = AuctionListings.objects.get(id=listing.id).starting_bid
             print(max_bid)
         in_watchlist = WatchList.objects.filter(user=request.user, listing=listing_id).exists()
+        comments = Comments.objects.filter(listing=listing)
+        print(comments)
         return render(request, "auctions/listing.html", 
                       {'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist})
     
@@ -53,7 +55,9 @@ def listing_page(request, listing_id):
     elif request.method == "POST":
         listing_id = request.POST.get('listing_id')
         listing_object = AuctionListings.objects.get(id=listing_id)
-        max_bid = float(Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max'])
+        # db_max is just some variable that'll be assigned if any other bid (other than the starting bid) has been assigned to a listing
+        db_max = Bids.objects.filter(listing_id=listing_id).aggregate(Max('bid'))['bid__max']
+        max_bid = db_max if db_max else AuctionListings.objects.get(id=listing_id).starting_bid
 
         bid_price = float(request.POST.get('new_bid'))
         user = request.user

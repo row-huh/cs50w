@@ -10,9 +10,9 @@
         {% csrf_token %}
 
         <label>Place new bid:</label>
-        <input name="new_bid" type="number" placeholder="{{ listing.bid }}">
-        <input name="listing_id" type="number" hidden value={{ listing.id }}>
-        <input type="submit" value="Submit">
+        <input name="new_bid" type="number" placeholder="{{ listing.bid }}" />
+        <input name="listing_id" type="number" step="any" hidden value={{ listing.id }} />
+        <input type="submit" value="Submit" />
     </form>
 
 
@@ -27,5 +27,8 @@
             {% endif %}
         </button>
     </form>
+
+
+    // add a comment option 
 
 {% endblock body %}
