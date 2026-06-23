@@ -47,9 +47,13 @@ def listing_page(request, listing_id):
             print(max_bid)
         in_watchlist = WatchList.objects.filter(user=request.user, listing=listing_id).exists()
         comments = Comments.objects.filter(listing=listing)
+        # boolean variable that'll keep track of whether or not the currently signed in user is the one who posted this listing
+        is_owner = True if listing.publisher_id == request.user else False
         print(comments)
         return render(request, "auctions/listing.html", 
-                      {'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist, 'comments': comments})
+                      {'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist, 'comments': comments, 'is_owner': is_owner, 
+                       'is_closed': listing.is_closed,
+                       'closing_bid': listing.closing_bid})
     
     
     elif request.method == "POST":
@@ -68,6 +72,15 @@ def listing_page(request, listing_id):
 
         else: 
             return HttpResponse("Bid must be higher than" + str(max_bid))
+
+
+def close_bid(request):
+    if request.method=="POST":
+        listing_id = request.POST["listing_id"]
+        listing = AuctionListings.objects.get(id=listing_id)
+        listing.is_closed = True
+        listing.winning_user = request.user
+        listing.save()
 
 
 def add_to_watchlist(request, listing_id):

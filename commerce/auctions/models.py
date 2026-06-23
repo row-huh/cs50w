@@ -8,11 +8,14 @@ class User(AbstractUser):
 
 # one for auction listings, one for bids, and one for comments made on auction listings.
 class AuctionListings(models.Model):
-    publisher_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    publisher_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Auction_Publisher")
     title = models.CharField(max_length=64, default='')
     description = models.TextField(default='')
     starting_bid = models.FloatField(default=0)
     url = models.URLField(max_length=200, null=True)
+    is_closed = models.BooleanField(default=False)
+    closing_bid = models.ForeignKey("Bids", null=True, on_delete=models.SET_NULL, default=None)
+    winning_user = models.ForeignKey(User, null=True, on_delete=models.CASCADE, default=None, related_name="Auction_Winner")
 
     
 class Bids(models.Model):

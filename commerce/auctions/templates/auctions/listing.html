@@ -1,32 +1,46 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+    
+
     <p>{{ listing.title }}</p>
     <p>{{ listing.description }}</p>
     <p>{{ total_bids }} Bid (s) so far</p>
     <p>Highest Bid: {{ max_bid }}</p>
 
-    <form action="{% url 'listing-page' listing.id %}" method="POST">
-        {% csrf_token %}
 
-        <label>Place new bid:</label>
-        <input name="new_bid" type="number" placeholder="{{ listing.bid }}" />
-        <input name="listing_id" type="number" step="any" hidden value={{ listing.id }} />
-        <input type="submit" value="Submit" />
-    </form>
+    {% if is_owner %}
+        <form action="{% url 'close-bid' %}">
+            {% csrf_token %}
+            <input type="submit" value="Close Bid"/>
+            <input name="listing_id" type="hidden" value={{ listing.id }}>
+        </form>
+    {% endif %}
+    
+    // If bid is still open, then allow adding new bids - otherwise directly show comments only
+    {% if not is_closed %}
+        <form action="{% url 'listing-page' listing.id %}" method="POST">
+            {% csrf_token %}
+
+            <label>Place new bid:</label>
+            <input name="new_bid" type="number" placeholder="{{ listing.bid }}" />
+            <input name="listing_id" type="number" step="any" hidden value={{ listing.id }} />
+            <input type="submit" value="Submit" />
+        </form>
 
 
 
-    <form action="{% url 'add-to-watchlist' listing.id %}" method="POST">
-        {% csrf_token %}
-        <button type="submit">
-            {% if in_watchlist %}
-                Remove From Watchlist
-            {% else %}
-                Add to Watchlist
-            {% endif %}
-        </button>
-    </form>
+        <form action="{% url 'add-to-watchlist' listing.id %}" method="POST">
+            {% csrf_token %}
+            <button type="submit">
+                {% if in_watchlist %}
+                    Remove From Watchlist
+                {% else %}
+                    Add to Watchlist
+                {% endif %}
+            </button>
+        </form>
+    {% endif %}
 
 
     {% block comment_Section %}
