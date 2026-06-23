@@ -49,7 +49,7 @@ def listing_page(request, listing_id):
         comments = Comments.objects.filter(listing=listing)
         print(comments)
         return render(request, "auctions/listing.html", 
-                      {'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist})
+                      {'listing': listing, 'total_bids': total_bids, 'max_bid' : max_bid, 'in_watchlist': in_watchlist, 'comments': comments})
     
     
     elif request.method == "POST":
@@ -140,3 +140,16 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+
+
+def add_comment(request):
+    if request.method == "POST":
+        user = request.user
+        listing_id = int(request.POST["listing"])
+        listing = AuctionListings.objects.get(id=listing_id)
+        content = request.POST["comment-content"]
+        new = Comments.objects.create(listing=listing, user=user, content=content)
+        new.save()
+        
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))

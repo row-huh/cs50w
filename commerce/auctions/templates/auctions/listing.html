@@ -29,6 +29,22 @@
     </form>
 
 
-    // add a comment option 
+    {% block comment_Section %}
+        {% if comments %}
+            {% for comment in comments %}
+                <li>{{ comment.user.username }}</li>
+                <p>{{ comment.content }}</p>
+                <br/>
+            {% endfor %}
+        {% endif %}
+
+        <form action="{% url 'add-comment' %}" method="POST">  
+            {% csrf_token %}
+            <label>Insert Comment: </label>
+            <input name='comment-content' id='comment-content' type=text></input>
+            <input type='submit'></input>
+            <input name='listing' type=hidden value="{{ listing.id }}"/>
+        </form>
+    {% endblock %} 
 
 {% endblock body %}
